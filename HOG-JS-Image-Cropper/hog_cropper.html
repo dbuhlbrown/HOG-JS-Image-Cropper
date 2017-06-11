@@ -1,0 +1,222 @@
+<!--
+
+This program was designed primarily to help me draw fixed ratio
+bounding boxes around images for HOG feature extraction. While
+the file itself does not perform cropping. A python script crop_images.py
+is provided which will crop the positive images into 50X50 squares,
+and will also crop all negative images into the same size.
+After this you will be able to use these cropped files to extract
+HOG features.
+
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <title>Cropper.js</title>
+  <link rel="stylesheet" href="dist/cropper.css">
+  <style>
+    .container {
+      max-width: 640px;
+      margin: 20px auto;
+    }
+
+    img {
+      max-width: 100%;
+    }
+  </style>
+</head>
+<body>
+
+  <p>Select a text file containing positive image names</p>
+  <input type="file" id="positiveImagesFileInput">
+
+
+  <p>Select a text file containing previous results</p>
+  <p>We will start from the next image in the list</p>
+  <input type="file" id="previousResultsInput">
+
+  <p>If you have no previous results, simply press the button below</p>
+  <input type="button" onclick="begin()" value="Begin"/>
+
+  <p>If you are done or want to continue later. Press save</p>
+  <input type="button" onclick="writeToFile()" value="Save"/>
+
+  <div class="container">
+    <div>
+      <img id="image" src="" alt="Picture">
+    </div>
+
+    <a download="results.txt" id="link" style="display: none">Download</a>
+  </div>
+
+  <script src="dist/cropper.js"></script>
+  <script>
+
+    var x = 0
+    var y = 0
+    var width = 0
+    var height = 0
+
+    var cropper = null;
+
+    var image_names = null;
+
+    var results = Array( );
+
+    //This index is used to sync the data writing and image name reading
+    var global_image_index = 0
+
+    //This stores the string of bounding boxes so the user can write multiple boxes
+    var data_string = ""
+
+    var bounding_box_count = 0
+
+    /*The begin button calls this function or the listener that uploads the
+      previous file does
+    */
+    function begin( ){
+
+      beginCropping( );
+      loadNextImage( );
+    }
+
+    /*When the s key is pressed, it will save the
+      coords and filename to an array of arrays.
+    */
+    window.onkeyup = function (e) {
+        var code = e.keyCode ? e.keyCode : e.which;
+        //If the user presses s it will save the data to a text file and move on to the next image
+        if (code === 83) { //up key
+
+            console.log("writing to data_string");
+
+            //I used this for the regex: https://stackoverflow.com/questions/14072313/replace-n-in-javascript
+            results[ global_image_index ] = image_names[ global_image_index ].replace(/[\n\r]/g,"") + "," + bounding_box_count + "," + data_string + "\n";
+
+            global_image_index+=1;
+
+            bounding_box_count = 0;
+            data_string = ""
+
+            loadNextImage( );
+
+        //else if the user presses w it just writes to the current index
+        //NOTE: We write out y first, because the OpenCV function we are using expects y first.
+        }  else if (code === 87) {
+
+           console.log("writing to data_string")
+
+           if( bounding_box_count == 0 ){
+
+             data_string += Math.trunc(y) + "," + Math.trunc(x) + "," + Math.trunc(width) + "," + Math.trunc(height);
+           } else {
+
+             data_string += "," + Math.trunc(y) + "," + Math.trunc(x) + "," + Math.trunc(width) + "," + Math.trunc(height);
+           }
+
+           bounding_box_count++;
+        }
+    };
+
+    /*Just reads the file once it is selected*/
+    window.onload = function() {
+
+        positiveImagesFileInput.addEventListener('change', function(e) {
+            var file = positiveImagesFileInput.files[0];
+            var textType = /text.*/;
+
+            if (file.type.match(textType)) {
+                var reader = new FileReader();
+
+                reader.onload = function(e) {
+                    image_names = reader.result.split("\n");
+                }
+
+                reader.readAsText(file);
+            }
+        });
+
+        previousResultsInput.addEventListener('change', function(e) {
+            var file = previousResultsInput.files[0];
+            var textType = /text.*/;
+
+            if (file.type.match(textType)) {
+                var reader = new FileReader();
+
+                reader.onload = function(e) {
+                    results = reader.result.split("\n");
+                    global_image_index = results.length;
+                    loadNextImage( );
+                }
+
+                reader.readAsText(file);
+            }
+        });
+
+   }
+
+  /*Initializes the cropper.js library*/
+  function beginCropping( ){
+    var image = document.querySelector('#image');
+    cropper = new Cropper(image, {
+      dragMode: 'move',
+      aspectRatio: 1 / 1,
+      autoCropArea: 0.65,
+      restore: false,
+      guides: false,
+      center: false,
+      highlight: false,
+      cropBoxMovable: false,
+      cropBoxResizable: false,
+      toggleDragModeOnDblclick: false,
+      crop: function(e) {
+         x = e.detail.x;
+         y = e.detail.y;
+         width = e.detail.width;
+         height = e.detail.height;
+
+        }
+    });
+  }
+
+  function loadNextImage( ){
+
+      if ( ( global_image_index + 1 ) == image_names.length){
+
+        alert("There are no more images left to process. Please save your work.")
+        writeToFile( );
+      } else {
+
+        cropper.replace( image=image_names[global_image_index] );
+
+      }
+  }
+
+  /*Saves all of the work to a text file*/
+  function writeToFile( ){
+
+    var textFile = null,
+    makeTextFile = function (text) {
+      var data = new Blob(text, {type: 'text/plain'});
+
+      // If we are replacing a previously generated file we need to
+      // manually revoke the object URL to avoid memory leaks.
+      if (textFile !== null) {
+        window.URL.revokeObjectURL(textFile);
+      }
+
+      textFile = window.URL.createObjectURL(data);
+      return textFile;
+
+    };
+    link.href = makeTextFile(results);
+    link.style.display = 'block';
+ }
+
+  </script>
+</body>
+</html>
