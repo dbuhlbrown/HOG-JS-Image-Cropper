@@ -53,6 +53,8 @@ Now you are ready to compute the HOG features and run a classifier on them.
 
 <h3>Future Work and Extra Features</h3>
 
+These items are in no particular order.
+
 Add the option to create a config.txt file which will allow the program to be customized MUCH more easily. Right now it is by default, setup using the parameters I needed. Eventually I want to let the user choose ratio, width, height, different directories, and limit the number of negative samples taken from a single negative image.
 
 Rewrite the program to not use OpenCV (since it is a huge libary to import), but for now it is convenient to use it. 
@@ -62,6 +64,8 @@ Add command line options to the program as well just to expand user functionalit
 Clean up and separate the Javascript code (it is inline currently). 
 
 Improve the hog_cropper interface, it is pretty ugly right now.
+
+Add unit testing to the Javascript / Python
 
 <h3>Libraries / 3rd Party Software Used</h3>
 
