@@ -54,32 +54,34 @@ def crop_positive_images( ):
     bounding_boxes = bounding_boxes.split("\n")
 
     for i in range ( len(bounding_boxes) ):
+        
+        if( bounding_boxes[i] != "--SKIPPED--"):
 
-        single_bounding_box = bounding_boxes[ i ].split(",")
+            single_bounding_box = bounding_boxes[ i ].split(",")
 
-        image = cv2.imread( single_bounding_box[0] );
+            image = cv2.imread( single_bounding_box[0] );
 
-        #This loop is a bit complicated because of the format our data is
-        #But have a simple data file is worth one complicated loop
-        for j in range( 0, int(single_bounding_box[1])*4, 4 ):
+            #This loop is a bit complicated because of the format our data is
+            #But have a simple data file is worth one complicated loop
+            for j in range( 0, int(single_bounding_box[1])*4, 4 ):
 
-            y = int( single_bounding_box[j+2] )
-            x = int( single_bounding_box[(j+1)+2] )
-            width = int( single_bounding_box[(j+2)+2] )
-            height = int( single_bounding_box[(j+3)+2] )
-            #Debugging print left in for test
-            #print (   single_bounding_box[j+2] + ","
-            #        + single_bounding_box[(j+1)+2] + ","
-            #        + single_bounding_box[(j+2)+2] + ","
-            #        + single_bounding_box[(j+3)+2]
-            #      )
+                y = int( single_bounding_box[j+2] )
+                x = int( single_bounding_box[(j+1)+2] )
+                width = int( single_bounding_box[(j+2)+2] )
+                height = int( single_bounding_box[(j+3)+2] )
+                #Debugging print left in for test
+                #print (   single_bounding_box[j+2] + ","
+                #        + single_bounding_box[(j+1)+2] + ","
+                #        + single_bounding_box[(j+2)+2] + ","
+                #        + single_bounding_box[(j+3)+2]
+                #      )
 
-            crop_img = image[y:(y+height),x:(x+width)]
-            crop_img = cv2.resize(crop_img,(50, 50), interpolation = cv2.INTER_CUBIC)
-            #This gives us the name of the image without the file path
-            image_name = (single_bounding_box[ 0 ].split("\\"))[-1]
+                crop_img = image[y:(y+height),x:(x+width)]
+                crop_img = cv2.resize(crop_img,(50, 50), interpolation = cv2.INTER_CUBIC)
+                #This gives us the name of the image without the file path
+                image_name = (single_bounding_box[ 0 ].split("\\"))[-1]
 
-            cv2.imwrite( positive_cropped_directory + str(j) + "_" + image_name, crop_img )
+                cv2.imwrite( positive_cropped_directory + str(j) + "_" + image_name, crop_img )
 
 #This function takes an image from the negative images directory and then cuts it
 #into as many widthXheight pieces as it can

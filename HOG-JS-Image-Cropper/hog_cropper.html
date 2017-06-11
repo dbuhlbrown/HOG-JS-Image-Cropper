@@ -92,18 +92,23 @@ HOG features.
         //If the user presses s it will save the data to a text file and move on to the next image
         if (code === 83) { //up key
 
-            console.log("writing to data_string");
+            if( data_string === "" ){
 
-            //I used this for the regex: https://stackoverflow.com/questions/14072313/replace-n-in-javascript
-            results[ global_image_index ] = image_names[ global_image_index ].replace(/[\n\r]/g,"") + "," + bounding_box_count + "," + data_string + "\n";
+              alert("You have saved no boxes. Please either save a box, or press f to skip.");
 
-            global_image_index+=1;
+            } else {
+              console.log("writing to data_string");
 
-            bounding_box_count = 0;
-            data_string = ""
+              //I used this for the regex: https://stackoverflow.com/questions/14072313/replace-n-in-javascript
+              results[ global_image_index ] = image_names[ global_image_index ].replace(/[\n\r]/g,"") + "," + bounding_box_count + "," + data_string + "\n";
 
-            loadNextImage( );
+              global_image_index+=1;
 
+              bounding_box_count = 0;
+              data_string = ""
+
+              loadNextImage( );
+          }
         //else if the user presses w it just writes to the current index
         //NOTE: We write out y first, because the OpenCV function we are using expects y first.
         }  else if (code === 87) {
@@ -119,6 +124,15 @@ HOG features.
            }
 
            bounding_box_count++;
+
+        } else if( code === 70 ){
+
+            results[ global_image_index ] = "--SKIPPED--\n";
+
+            data_string = ""
+            bounding_box_count =  0;
+            global_image_index++;
+            loadNextImage( );
         }
     };
 
@@ -149,8 +163,11 @@ HOG features.
 
                 reader.onload = function(e) {
                     results = reader.result.split("\n");
-                    global_image_index = results.length;
-                    loadNextImage( );
+                    console.log( results.length );
+
+                    //A trailing new line requires us to subtract our length by 1.
+                    global_image_index = results.length - 1;
+                    //loadNextImage( );
                 }
 
                 reader.readAsText(file);
