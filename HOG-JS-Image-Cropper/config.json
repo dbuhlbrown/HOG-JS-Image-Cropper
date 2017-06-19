@@ -1,0 +1,16 @@
+{
+  "width": 64,
+  "height": 64,
+
+  "positive_images_file":"positive.txt",
+  "positive_images_directory":"../../positive_images/",
+  "positive_cropped_directory":"../../positive_images/cropped_images/",
+
+  "negative_images_directory":"../../negative_images/",
+  "negative_cropped_directory":"../../negative_images/cropped_images/",
+
+  "bounding_box_file":"results.txt",
+
+  "negative_column_buffer":7,
+  "negative_row_buffer":7
+}

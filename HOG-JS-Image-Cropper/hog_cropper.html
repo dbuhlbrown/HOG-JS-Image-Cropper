@@ -162,12 +162,19 @@ HOG features.
                 var reader = new FileReader();
 
                 reader.onload = function(e) {
-                    results = reader.result.split("\n");
-                    console.log( results.length );
+                    //We perform the map to recover our new lines that are lost when using .split()
+                    results = reader.result.split("\n").map(i => i + '\n');
+                    //console.log( results[0] );
 
                     //A trailing new line requires us to subtract our length by 1.
                     global_image_index = results.length - 1;
                     //loadNextImage( );
+
+                    //This should probably become a function that is checked after every image
+                    if( global_image_index == image_names.length ){
+
+                      alert("All images have been annotated. Create a new positive.txt or delete result.txt to reannotate");
+                    }
                 }
 
                 reader.readAsText(file);
