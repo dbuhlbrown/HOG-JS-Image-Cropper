@@ -11,7 +11,7 @@ I am trying to detect has a ratio of approximately 1:1.
 
 <h3>Application Pipeline</h3>
 
-Begin by moving all positive and negative images you want to use into the "positive_images" and "negative_images" directories.
+Begin by moving all positive and negative images you want to use into the "positive_images" and "negative_images" directories that you have defined in config.json.
 
 <b>Step 1:</b>
 Then run the "create_positives.py" script which will create a textfile named positive.txt which contains
@@ -55,17 +55,15 @@ Now you are ready to compute the HOG features and run a classifier on them.
 
 These items are in no particular order.
 
-Add the option to create a config.txt file which will allow the program to be customized MUCH more easily. Right now it is by default, setup using the parameters I needed. Eventually I want to let the user choose ratio, width, height, different directories, and limit the number of negative samples taken from a single negative image.
+Edit the Javascript to read the proper ratio from the config.json file.
 
 Rewrite the program to not use OpenCV (since it is a huge libary to import), but for now it is convenient to use it. 
-
-Add command line options to the program as well just to expand user functionality. 
 
 Clean up and separate the Javascript code (it is inline currently). 
 
 Improve the hog_cropper interface, it is pretty ugly right now.
 
-Add unit testing to the Javascript / Python
+Expand the Python unit testing (I only have basic testing currently)
 
 <h3>Libraries / 3rd Party Software Used</h3>
 
